@@ -3,33 +3,45 @@ const User = require('../../models/User');
 
 const createProject = async (req, res) => {
   try {
-    const { user_id, course, classmodel, period, discipline, teacher, student } = req.body;
-
-    if (!user_id || !course || !classmodel || !period || !discipline || !teacher || !student) {
-      return res.status(400).json({ message: 'All required fields must be provided.' });
-    }
-
-    const userInfo = await User.findById(user_id);
-    if (!userInfo) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
+    const { user_id, title, area, classProject, shift, type, date, linkEvent, supervisor, groupLeaderEmail, authors} = req.body;
+    
     const { originalname: name, size, filename: key } = req.file;
 
+    if (!user_id || !title || !area || !classProject || !shift || !type || !date || !linkEvent || !supervisor || !groupLeaderEmail || !authors) {
+      return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser fornecidos.' });
+    }
+    
+
+    const userInfo = await User.findById(user_id);
+    
+    if (!userInfo) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
     const project = new Project({
-      course,
-      classmodel,
-      period,
-      discipline,
-      teacher,
-      student,
-      user: userInfo._id
+      title,
+      area,
+      classProject,
+      shift,
+      type,
+      date,
+      linkEvent,
+      supervisor,
+      groupLeaderEmail,
+      authors,
+      src: {
+        name,
+        size,
+        key,
+        url: "",
+      },
+      user: userInfo._id,
     });
 
     const createdProject = await project.save();
     const populatedProject = await Project.findById(createdProject._id).populate('user');
 
-    res.status(201).json({ message: 'Data successfully registered in the system!', project: populatedProject });
+    res.status(201).json({ message: 'Dados registrados com sucesso no sistema!', project: populatedProject, userInfo: userInfo });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -31,7 +31,7 @@ router.patch('/event/:id', eventController.updateEventById);
 router.delete('/event/:id', eventController.deleteEvent);
 
 //Router Project
-router.post('/project', projectController.createProject);
+router.post('/project', multer(multerConfig).single('file'), projectController.createProject);
 router.get('/project', projectController.getProjects);
 router.get('/project/:id', projectController.getProjectById);
 router.patch('/project/:id', projectController.updateProjectById);
