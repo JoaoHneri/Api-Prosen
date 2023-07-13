@@ -16,7 +16,7 @@ const uploadFileController = require('./controllers/Upload/UploadFileController'
 
 // Router users
 router.get('/', publicRouteController.getPublicRoute);
-router.post('/auth/register', registerUserController.registerUser);
+router.post('/auth/register', multer(multerConfig).single('file'), registerUserController.registerUser);
 router.post('/auth/login', loginUserController.loginUser);
 router.get('/user/:id', checkToken, privateRouteController.privateRoute);
 router.put('/user/:id/name', checkToken, updateUserController.updateNameUser);
@@ -24,7 +24,7 @@ router.put('/user/:id/email', checkToken, updateUserController.updateEmailUser);
 router.put('/user/:id/password', checkToken, updateUserController.updatePasswordUser);
 
 // Router Event
-router.post('/event', multer(multerConfig).single('file'), eventController.createEvent);
+router.post('/event', multer(multerConfig).array('src', 8), eventController.createEvent);
 router.get('/event', eventController.getEvents);
 router.get('/event/:id', eventController.getEventById);
 router.patch('/event/:id', eventController.updateEventById);

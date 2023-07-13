@@ -11,10 +11,9 @@ const createEvent = async (req, res) => {
       type,
       descricao,
       startDate,
-      
     } = req.body;
 
-    const { originalname: name, size, filename: key } = req.file;
+    const src = req.files; // Array de arquivos enviados
 
     if (
       !user_id ||
@@ -23,12 +22,13 @@ const createEvent = async (req, res) => {
       !hour ||
       !type ||
       !descricao ||
-      !startDate 
-      
+      !startDate ||
+      !src || // Verifica se há arquivos enviados
+      src.length === 0 // Verifica se o array de arquivos está vazio
     ) {
       return res
         .status(400)
-        .json({ message: "All required fields must be provided." });
+        .json({ message: "All required fields must be provided, including files." });
     }
 
     const userInfo = await User.findById(user_id);
@@ -43,13 +43,20 @@ const createEvent = async (req, res) => {
       type,
       descricao,
       startDate,
-      src: {
+      src: [], // Array vazio para armazenar as informações dos arquivos
+      user: userInfo._id,
+    });
+
+    // Percorre o array de arquivos e armazena as informações no campo src
+    src.forEach((src) => {
+      const { originalname: name, size, filename: key } = src;
+
+      event.src.push({
         name,
         size,
         key,
-        url: "",
-      },
-      user: userInfo._id,
+        url: "", // Você pode armazenar a URL do arquivo aqui, se necessário
+      });
     });
 
     const createdEvent = await event.save();
@@ -57,16 +64,15 @@ const createEvent = async (req, res) => {
       "user"
     );
 
-    return res
-      .status(201)
-      .json({
-        message: "Data successfully registered in the system!",
-        event: populatedEvent,
-      });
+    return res.status(201).json({
+      message: "Data successfully registered in the system!",
+      event: populatedEvent,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 const getEvents = async (req, res) => {
   try {
