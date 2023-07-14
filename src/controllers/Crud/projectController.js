@@ -132,10 +132,66 @@ const isValidId = (id) => {
   return /^[0-9a-fA-F]{24}$/.test(id);
 };
 
+
+const updateProject = async (req, res) => {
+  try {
+    const { project_id } = req.params;
+    const { title, area, classProject, shift, type, date, linkEvent, supervisor, groupLeaderEmail, authors } = req.body;
+
+    if (!title || !area || !classProject || !shift || !type || !date || !linkEvent || !supervisor || !groupLeaderEmail || !authors) {
+      return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser fornecidos.' });
+    }
+
+    const project = await Project.findById(project_id);
+    if (!project) {
+      return res.status(404).json({ message: 'Projeto não encontrado.' });
+    }
+
+    project.title = title;
+    project.area = area;
+    project.classProject = classProject;
+    project.shift = shift;
+    project.type = type;
+    project.date = date;
+    project.linkEvent = linkEvent;
+    project.supervisor = supervisor;
+    project.groupLeaderEmail = groupLeaderEmail;
+    project.authors = authors;
+
+    const updatedProject = await project.save();
+    const populatedProject = await Project.findById(updatedProject._id).populate('user');
+
+    res.status(200).json({ message: 'Projeto atualizado com sucesso!', project: populatedProject });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getProjectsByUserId = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    const userInfo = await User.findById(user_id);
+    if (!userInfo) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    const projects = await Project.find({ user: user_id }).populate('user');
+
+    res.status(200).json({ projects });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   updateProjectById,
-  deleteProject
+  deleteProject,
+  updateProject, 
+  getProjectsByUserId,
 };
