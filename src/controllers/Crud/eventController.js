@@ -13,7 +13,8 @@ const createEvent = async (req, res) => {
       startDate,
     } = req.body;
 
-    const src = req.files; // Array de arquivos enviados
+    const {src, video} = req.files; // Array de arquivos enviados
+ // Array de vídeos enviados
 
     if (
       !user_id ||
@@ -24,11 +25,13 @@ const createEvent = async (req, res) => {
       !descricao ||
       !startDate ||
       !src || // Verifica se há arquivos enviados
-      src.length === 0 // Verifica se o array de arquivos está vazio
+      src.length === 0 || // Verifica se o array de arquivos está vazio
+      !video || // Verifica se há vídeos enviados
+      video.length === 0 // Verifica se o array de vídeos está vazio
     ) {
       return res
         .status(400)
-        .json({ message: "All required fields must be provided, including files." });
+        .json({ message: "All required fields must be provided, including files and videos." });
     }
 
     const userInfo = await User.findById(user_id);
@@ -45,17 +48,30 @@ const createEvent = async (req, res) => {
       startDate,
       src: [], // Array vazio para armazenar as informações dos arquivos
       user: userInfo._id,
+      video: [] // Array vazio para armazenar as informações dos vídeos
     });
 
     // Percorre o array de arquivos e armazena as informações no campo src
-    src.forEach((src) => {
-      const { originalname: name, size, filename: key } = src;
+    src.forEach((file) => {
+      const { originalname: name, size, filename: key } = file;
 
       event.src.push({
         name,
         size,
         key,
         url: "", // Você pode armazenar a URL do arquivo aqui, se necessário
+      });
+    });
+
+    // Percorre o array de vídeos e armazena as informações no campo video
+    video.forEach((video) => {
+      const { originalname: name, size, filename: key } = video;
+
+      event.video.push({
+        name,
+        size,
+        key,
+        url: "", // Você pode armazenar a URL do vídeo aqui, se necessário
       });
     });
 
@@ -72,6 +88,7 @@ const createEvent = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 const getEvents = async (req, res) => {
@@ -163,7 +180,7 @@ const updateEvent = async (req, res) => {
       startDate,
     } = req.body;
 
-    const src = req.files; // Array de arquivos enviados
+    const {src, video} = req.files; // Array de arquivos enviados
 
     if (
       !local ||
@@ -173,7 +190,9 @@ const updateEvent = async (req, res) => {
       !descricao ||
       !startDate ||
       !src || // Verifica se há arquivos enviados
-      src.length === 0 // Verifica se o array de arquivos está vazio
+      src.length === 0||
+      !video||
+      video.src === 0 // Verifica se o array de arquivos está vazio
     ) {
       return res.status(400).json({ message: "All required fields must be provided, including files." });
     }
@@ -190,13 +209,25 @@ const updateEvent = async (req, res) => {
     event.type = type;
     event.descricao = descricao;
     event.startDate = startDate;
-    event.src = []; // Limpa o array de arquivos existentes
+    event.src = []; 
+    event.video = [];// Limpa o array de arquivos existentes
 
     // Percorre o array de arquivos e armazena as informações no campo src
     src.forEach((src) => {
       const { originalname: name, size, filename: key } = src;
 
       event.src.push({
+        name,
+        size,
+        key,
+        url: "", // Você pode armazenar a URL do arquivo aqui, se necessário
+      });
+    });
+
+    video.forEach((src) => {
+      const { originalname: name, size, filename: key } = src;
+
+      event.video.push({
         name,
         size,
         key,

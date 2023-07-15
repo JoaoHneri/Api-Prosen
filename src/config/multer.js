@@ -24,6 +24,14 @@ const fileFilter = (req, file, cb) => {
     'image/png',
     'image/gif',
     'application/pdf',
+    'video/mp4',
+    'video/mpeg',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/x-flv',
+    'video/x-matroska',
+    'video/webm',
+    'video/x-msvideo',
   ];
 
   if (allowedMimes.includes(file.mimetype)) {
@@ -37,7 +45,7 @@ const upload = multer({
   dest: path.resolve(__dirname, '..', '..', 'temp', 'uploads'),
   storage,
   limits: {
-    fileSize: 2 * 1024 * 1024,
+    fileSize: 50 * 1024 * 1024,
   },
   fileFilter,
 });

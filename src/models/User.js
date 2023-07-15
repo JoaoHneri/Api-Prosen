@@ -1,6 +1,9 @@
+
 const mongoose = require('mongoose');
+const UploadFile = require('./UploadFile');
+
 const UserSchema = new mongoose.Schema({
-  name: String,
+  nameUser: String,
   email: String,
   office: String,
   telephone: String,
@@ -8,6 +11,31 @@ const UserSchema = new mongoose.Schema({
   authAdmin: {
     type: Boolean,
     default: false,
+  },
+  record: String,
+  graduation: String,
+  LevelofEducation: String,
+  authStudent: {
+    type: Boolean,
+    default: false,
+  },
+  file: {
+    name: {
+      type: String,
+      required: true
+    },
+    size: {
+      type: Number,
+      required: true
+    },
+    key: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      default: ""
+    }
   },
 });
 

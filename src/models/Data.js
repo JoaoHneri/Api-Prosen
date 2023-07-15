@@ -50,8 +50,29 @@ const EventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
+  video: [
+    {
+      name: {
+        type: String,
+        required: true
+      },
+      size: {
+        type: Number,
+        required: true
+      },
+      key: {
+        type: String,
+        required: true
+      },
+      url: {
+        type: String,
+        default: ""
+      }
+    }
+  ]
 });
+
 
 
 const ProjectSchema = new mongoose.Schema({

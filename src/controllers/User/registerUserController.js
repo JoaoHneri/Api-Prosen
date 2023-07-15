@@ -4,23 +4,24 @@ const UploadFile = require('../../models/UploadFile');
 
 const registerUser = async (req, res) => {
   const {
-    name,
+    nameUser,
     email,
     password,
     confirmPassword,
     office,
     telephone,
     authAdmin,
+    authStudent,
     record,
     graduation,
     LevelofEducation,
   } = req.body;
 
-  const { originalname, size, filename } = req.file || {};
+  const { originalname: name, size, filename: key } = req.file;
 
   try {
     const requiredFields = [
-      'name',
+      'nameUser',
       'email',
       'password',
       'confirmPassword',
@@ -67,7 +68,7 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const user = new User({
-      name,
+      nameUser,
       email,
       office,
       telephone,
@@ -76,19 +77,14 @@ const registerUser = async (req, res) => {
       LevelofEducation,
       password: hashedPassword,
       authAdmin: authAdmin || false,
-    });
-
-    if (req.file) {
-      const uploadFile = new UploadFile({
-        name: originalname,
+      authStudent:  authStudent || false,
+      file: {
+        name,
         size,
-        key: filename,
-        url: '',
-      });
-
-      await uploadFile.save();
-      user.file = uploadFile._id;
-    }
+        key,
+        url: "",
+      },
+    });
 
     await user.save();
 
@@ -99,4 +95,16 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+const findUsersWithNoAuth = async (req, res) => {
+  try {
+    const users = await User.find({ $and: [{ authAdmin: false }, { authStudent: false }] });
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred on the server!' });
+  }
+};
+
+
+
+module.exports = { registerUser, findUsersWithNoAuth };
