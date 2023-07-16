@@ -9,6 +9,7 @@ const registerUser = async (req, res) => {
     password,
     confirmPassword,
     office,
+
     telephone,
     authAdmin,
     authStudent,
